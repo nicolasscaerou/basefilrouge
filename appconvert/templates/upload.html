@@ -1,0 +1,29 @@
+{% extends "squelette.html" %}
+{% block content %}
+      <form action="/formulaire/" method="post" enctype="multipart/form-data" name="data">
+        <div>
+          <label for="name">Nom :</label>
+          <input type="text" id="name" name="user_name" />
+        </div>
+        <div>
+          <label for="filetype">Type fichier:</label>        
+          <select name="nom" size="1">
+            <option>Jpeg</option>
+            <option>Json</option>
+            <option>Pdf</option>
+            <option>Png</option>
+            <option>Txt</option>
+          </select>
+        </div>
+        <div>
+          <input type="file" id="filename" name="filename" />
+        </div>
+        <div class="button">
+              <button type="submit">Envoyer le fichier</button>
+        </div>
+      </form>
+{% endblock %}
+
+{% block footer %}
+  {{super()}}
+{% endblock %}

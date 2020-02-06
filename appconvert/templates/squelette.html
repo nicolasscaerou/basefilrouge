@@ -1,0 +1,43 @@
+{% from "navbarmacro.html" import nav_link with context %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Fil rouge</title>
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <link href="{{ url_for('static', filename='css/content.css') }}" rel="stylesheet" media="screen">
+    <link href="{{ url_for('static', filename='css/navbar.css') }}" rel="stylesheet" media="screen">
+    <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" media="screen">
+    <link href="{{ url_for('static', filename='css/footer.css') }}" rel="stylesheet" media="screen">
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+  </head>
+  <body>
+
+<!-- BARRE DE NAVIGATION -->
+    <nav class="navbar">
+      <div class="navbar">
+        <ul class="topnav">
+          {{ nav_link('index', 'Accueil') }}
+          {{ nav_link('redirection_ui', 'SwaggerUI') }}
+          {{ nav_link('formulaire', 'Formulaire') }}
+          {{ nav_link('apropos', 'Apropos') }}
+        </ul>
+      </div>
+    </nav>
+
+
+<!-- CONTENU PAGE  -->
+    <div class="content">
+      <br>
+      {% block content %}{% endblock %}
+      <br>
+    </div>
+
+<!-- FOOTER -->
+      <div class="footer">
+        {% block footer %}
+          Fil rouge 2019-2020
+        {% endblock %}
+      </div>
+
+  </body>
+</html>

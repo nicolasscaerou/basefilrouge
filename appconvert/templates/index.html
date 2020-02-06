@@ -1,0 +1,8 @@
+{% extends "squelette.html" %}
+{% block content %}
+  <h1>Bonjour!</h1>
+  <img src="{{ url_for('static', filename='img/logo_sio_v0.png') }}" height='300'/>
+{% endblock %}
+{% block footer %}
+  {{super()}}
+{% endblock %}

@@ -1,0 +1,12 @@
+flask
+gunicorn
+connexion
+connexion[swagger-ui]
+openapi-core
+logging
+werkzeug
+numpy
+cv2
+json
+yaml
+csv
