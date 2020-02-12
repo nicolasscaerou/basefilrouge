@@ -2,18 +2,39 @@
 """
    APPLICATION WEB contenant
     * API de transformation fichier -> Json
+
+   - utilisation de connexion OVER Flask qui gère mieux l'OPENAPI3 (demande du prof SOA)
+   - https avec SSL codés mais pas activé pour le moment
+   - codé entièrement avec VI :)
+
 """
 from __future__ import absolute_import
 import logging
 from datetime import datetime
+#utilisation de connexion qui agit par-dessus Flask et gère mieux l'OPENAPI3 (demande du prof SOA)
 import connexion
-from flask import Flask, jsonify, request, render_template, url_for
+from flask import request, render_template
+#from OpenSSL import SSL
 
 #architecture MVC:
 import controllers
 
-APP = connexion.FlaskApp(__name__, port=10000, specification_dir='openapi/')
+#attention, pour l'instant incompatible avec connexion(zalando)
+UPLOAD_FOLDER = '/path/to/the/uploads'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+MAX_CONTENT_LENGTH = 10 * 1024 * 1024
+
+#APP = connexion.FlaskApp(__name__, port=10000, specification_dir='openapi/')
+APP = connexion.FlaskApp(__name__, specification_dir='openapi/')
 APP.add_api('swagger.yaml', arguments={'title': 'SIO API'})
+#attention, pour l'instant incompatible avec connexion(zalando)
+#APP.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
+#APP.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+#HTTPS SSL certificat
+#context = SSL.Context(SSL.SSLv23_METHOD)
+#context.use_privatekey_file('ssl/appfilrouge.key')
+#context.use_certificate_file('ssl/appfilrouge.crt')
 
 #########################
 # PAGE D'INDEX (ACCUEIL)
@@ -23,7 +44,7 @@ def index():
     """
     route permettant d'avoir la page d'accueil
     """
- 
+
     return render_template('index.html', title="index")
 
 #########################
@@ -50,7 +71,8 @@ def formulaire(data=None):
         message = render_template('upload.html', title="upload")
     elif request.method == 'POST':
         print("cacadoudinnnnnnnnn")
-        message = controllers.convert_ctrl.convert_post(request)
+        #message = controllers.convert_ctrl.convert_post(request)
+        message = controllers.convert_ctrl.convert_post(data)
 
     return message
 
@@ -67,4 +89,7 @@ def apropos():
 
 
 if __name__ == '__main__':
-    APP.run(debug=True)
+
+    #a changer lorsque le certificat ssl sera obtenu
+    #APP.run(port=10000, debug=False, ssl_context=context))
+    APP.run(port=10000, debug=True)

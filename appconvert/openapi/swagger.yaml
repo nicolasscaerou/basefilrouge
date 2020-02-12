@@ -14,7 +14,7 @@ externalDocs:
 servers:
   - url: http://localhost:10000/api
 tags:
-  - name: convertisseur
+  - name: fichier
     description: Conversion de fichiers en Json
   - name: hello
     description: fonction de test
@@ -22,13 +22,13 @@ tags:
       description: Find out more
       url: 'http://swagger.io'
 paths:
-  /convert/:
+  /fichier/:
     post:
       tags:
-        - convertisseur
+        - fichier
       summary: upload a file
-      description: ''
-      operationId: controllers.convert_ctrl.convert_post
+      description: 'maximum 10Mo'
+      operationId: controllers.fichier_ctrl.fichier_post
       requestBody:
         content:
           multipart/form-data:
@@ -43,18 +43,38 @@ paths:
               type: string
       responses:
         '200':
-          description: successful operation
+          description: Fichier converti avec succès
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  adresseip:
-                    type: string
-                  mimetype:
-                    type: string
-                  data:
-                    type: string
+                $ref: '#/components/schemas/Fichier'
+        '500':
+          description: Erreur à la conversion
+  '/fichier/{idFichier}':
+    get:
+      tags:
+        - fichier
+      summary: retrouver un fichier précédemment uploadé
+      description: renvoi un fichier json d'un fichier déjà enregistré sur le serveur
+      operationId: controllers.fichier_ctrl.fichier_get
+      parameters:
+        - name: idFichier
+          in: path
+          description: ID du json à retourner
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Fichier retrouvé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fichier'
+        '400':
+          description: Invalide ID
+        '404':
+          description: Fichier non trouvé
   /hello/{name}:
     post:
       tags:
@@ -64,7 +84,7 @@ paths:
       operationId: controllers.hello_ctrl.hello
       responses:
         200:
-          description: greeting response
+          description: Dit bonjour
           content:
             text/plain:
               schema:
@@ -73,8 +93,50 @@ paths:
       parameters:
         - name: name
           in: path
-          description: Name of the person to greet.
+          description: Nom de la personne à qui dire bonjour
           required: true
           schema:
             type: string
             example: "dave"
+components:
+  schemas:
+    Fichier:
+#      required:
+#        - idFic
+#        - nomFic
+      type: object
+      properties:
+#donnees communes à chaque fichier
+        idFic:
+          type: string
+          example: 6cef510edf046c94085eeb6b2505b3ed
+        nomFic:
+          type: string
+          example: image2019.jpg
+        mimeType:
+          type: string
+          example: image/jpeg
+        taille:
+          type: int
+        extension:
+          type: string
+          example: jpg
+        dateConversion:
+          type: string
+          format: date-time
+#particularite à chaque fichier
+        metaDonnees:
+          type: object
+          additionalProperties: {}
+        donnees:
+          type: object
+          additionalProperties: {}
+        hateOas:
+          type: object
+          properties:
+            method:
+              type: string
+            url:
+              type: string
+            urn:
+              type: string

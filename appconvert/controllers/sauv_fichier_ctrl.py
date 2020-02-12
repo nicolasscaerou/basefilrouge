@@ -8,20 +8,30 @@
 """
 from __future__ import absolute_import
 
+from hashlib import md5
+from datetime import datetime
 from flask import request, jsonify
 from werkzeug.utils import secure_filename
 import numpy as np
 import cv2, json, yaml, csv 
 
-def convert_post(data: str) -> str:
+def fichier_post(data: str) -> str:
     """
     fonction de conversion
     """
     message = ""
     adresseip = request.remote_addr
     contenu = request.files['data'].read()
+    dateconversion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     nomfic = secure_filename(data.filename)
     mimetype = data.mimetype
+    taille = request.headers.get('Content-Length')
+    print("tailleheader: ", taille)
+
+    #creation d'un id unique
+    #temp = nomfic + taille + dateconversion
+    #idFic = md5(temp.encode()).hexdigest()
+
     extension = nomfic.split(".")[-1]
     print("================ EXTENSION : ", extension, " ====================")
 
@@ -93,3 +103,5 @@ def convert_post(data: str) -> str:
 #                         )
 
     return message
+
+def fichier_post(data: str) -> str:
