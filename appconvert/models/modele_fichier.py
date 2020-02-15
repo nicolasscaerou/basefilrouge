@@ -151,30 +151,3 @@ class Fichier():
                   'hateoas': self.hateoas,
                  }
         return result
-
-    def to_disk(self):
-        """enregistre le fichier sur le disque
-
-        :rtype: code retour
-        """
-        result = 1
-        with open(self._id_fichier, 'w') as fichiersortie:
-            json.dump(self, fichiersortie)
-            result = 0
-
-        # A TRANSFORMER POUR ENREGISTRER SUR AWSS3 avec module boto3
-
-        return result
-
-    def from_disk(self):
-        """ouvre un fichier stocké
-
-        :rtype: code retour
-        """
-        result = 1
-        with open(self._id_fichier, 'r') as fichierlu:
-            json.load(fichierlu)
-            result = 0
-
-        # A TRANSFORMER POUR ENREGISTRER SUR AWSS3 avec module boto3
-        return result

@@ -7,7 +7,6 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 1.0.0
 externalDocs:
   description: Lien vers l'avancée du projet
   url: /projet
@@ -26,8 +25,8 @@ paths:
     post:
       tags:
         - fichier
-      summary: upload a file
-      description: 'maximum 10Mo'
+      summary: Depose un fichier et le traduit en Json
+      description: Envoi limité à 10Mo par fichier. Le fichier sera traduit en JSON, en fonction de son type, puis stocké et retourné à l'envoyeur. Il contiendra des données de base sur le type de fichier, mais également des meta-donnees propres au type, et les donnees brutes du fichier. Si c'est un YAML, les donnees brutes seront transformées en pur JSON. Si c'est une Image, les donnees seront retournees en matrice RVB...
       operationId: controllers.fichier_ctrl.fichier_post
       requestBody:
         content:
@@ -38,16 +37,21 @@ paths:
                 data:
                   type: string
                   format: base64
-          application/json:
-            schema:
-              type: string
       responses:
-        '200':
+        '201':
           description: Fichier converti avec succès
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Fichier'
+          links:
+            GetFichier:
+              operationId: controllers.fichier_ctrl.fichier_get
+              parameters:
+                idFichier: 'idFichier'
+              description: >
+                The `id` value returned in the response can be used as
+                the `idFichier` parameter in `GET /fichier/{idFichier}`.
         '500':
           description: Erreur à la conversion
   '/fichier/{idFichier}':
@@ -75,6 +79,30 @@ paths:
           description: Invalide ID
         '404':
           description: Fichier non trouvé
+    delete:
+      tags:
+        - fichier
+      summary: retrouver un fichier précédemment uploadé et le supprimer
+      description: renvoi un fichier json d'un fichier déjà enregistré sur le serveur. Il s'agira du dernier envoi du fichier au format JSON
+      operationId: controllers.fichier_ctrl.fichier_delete
+      parameters:
+        - name: idFichier
+          in: path
+          description: ID du json à retourner et supprimer
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Fichier retrouvé et supprimé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fichier'
+        '400':
+          description: Invalide ID
+        '404':
+          description: Fichier non trouvé
   /hello/{name}:
     post:
       tags:
@@ -89,7 +117,7 @@ paths:
             text/plain:
               schema:
                 type: string
-                example: "hello Benoît!"
+                example: "Hello World!"
       parameters:
         - name: name
           in: path
@@ -97,13 +125,10 @@ paths:
           required: true
           schema:
             type: string
-            example: "dave"
+            example: "World"
 components:
   schemas:
     Fichier:
-#      required:
-#        - idFic
-#        - nomFic
       type: object
       properties:
 #donnees communes à chaque fichier
@@ -117,7 +142,8 @@ components:
           type: string
           example: image/jpeg
         taille:
-          type: int
+          type: integer
+          example: 4111982
         extension:
           type: string
           example: jpg

@@ -2,34 +2,12 @@
 """ outils de récupération d'informations sur des images - service AWS rekognition """
 
 import logging
-from datetime import datetime
 import boto3
 from botocore.exceptions import ClientError
 
 TAUX_MIN_CONFIANCE = 85
+BUCKET = "cataire"
 
-
-#def upload_file(file_name, bucket, object_name=None):
-#    """Upload a file to an S3 bucket
-#
-##    :param file_name: File to upload
-#    :param bucket: Bucket to upload to
-#    :param object_name: S3 object name. If not specified then file_name is used
-#    :return: True if file was uploaded, else False
-#    """
-#
-#    # If S3 object_name was not specified, use file_name
-#    if object_name is None:
-#        object_name = file_name
-#
-#    # Upload the file
-#    s3_client = boto3.client('s3')
-#    try:
-#        response = s3_client.upload_file(file_name, bucket, object_name)
-#    except ClientError as erreur:
-#        logging.error(erreur)
-#        return False
-#    return True
 
 def detect_labels(bucket, key, max_labels=10, min_confidence=TAUX_MIN_CONFIANCE,\
                                               region="eu-west-1"):
@@ -44,15 +22,9 @@ def detect_labels(bucket, key, max_labels=10, min_confidence=TAUX_MIN_CONFIANCE,
     """
     rekognition = boto3.client("rekognition", region)
     response = rekognition.detect_labels(
-                Image={
-                    "S3Object": {
-                            "Bucket": bucket,
-                            "Name": key,
-                     }
-                },
+                Image={"S3Object": {"Bucket": bucket, "Name": key}},
                 MaxLabels=max_labels,
-                MinConfidence=min_confidence
-        )
+                MinConfidence=min_confidence)
     return response['Labels']
 
 def detect_celebrities(bucket, key, region="eu-west-1"):
@@ -65,59 +37,42 @@ def detect_celebrities(bucket, key, region="eu-west-1"):
     """
     rekognition = boto3.client("rekognition", region)
     response = rekognition.recognize_celebrities(
-                 Image={
-                        "S3Object": {
-                                  "Bucket": bucket,
-                                  "Name": key,
-                        }
-                 },
-        )
+                Image={"S3Object": {"Bucket": bucket, "Name": key}})
     return response['CelebrityFaces']
 
 
-def reconnaissance_image(donnees) -> dict:
+def reconnaitre_image(key) -> dict:
     """Détecte des features sur des images
 
-    :param donnees: Image dont on veut récupérer des informations
+    :param key: identifiant de l'objet s3
     :return: retourne les labels d'éléments et éventuels célébrités reconnues dans l'image
     """
     result = {}
     #with open(image, "rb") as donnees: #a utiliser si nom fichier en entree et non des bytes
 
-    #creation client aws-s3
-    s3_client = boto3.client('s3')
-    #recuperation d'un bucket
-    response = s3_client.list_buckets()
-    bucket = response['Buckets'][0]['Name']
-    #definition d'un nom d'objet temporaore
-    key = "temp" + str(datetime.now().strftime("%H%M%S%f"))
-    logging.info("S3- connexion sur : {}", bucket)
-    #depot du fichier en objet sur s3
-    s3_client.upload_fileobj(donnees, bucket, key)
-    logging.info("S3: upload OK")
     try:
-        labels = {"TauxMinDeConfiancePrediction":TAUX_MIN_CONFIANCE}
+        labels = {"TauxMinDeConfiancePrediction":TAUX_MIN_CONFIANCE / 100}
         #AWS REKO LABELS
         liste = []
-        for label in detect_labels(bucket, key):
+        for label in detect_labels(BUCKET, key):
             liste.append("{Name}".format(**label))
         labels.update({"Noms_labels":liste})
 
         #AWS REKO CELEBRITIES
         celebrites = []
-        for celebrite in detect_celebrities(bucket, key):
+        for celebrite in detect_celebrities(BUCKET, key):
             element = {}
             element.update({"Nom:": "{Name}".format(**celebrite)})
             element.update({"Urls:": "{Urls}".format(**celebrite)})
             element.update({"TauxDeConfiancePrediction":\
                              format(float("{MatchConfidence}".format(**celebrite))/100, '.3f')})
             celebrites.append(element)
-    
+
         result.update({"Labels":labels})
         if len(celebrites) > 0:
             result.update({"Celebrites":celebrites})
     #except ClientError as erreur:
-    except:
+    except ClientError:
         result = {"aws_rekognition":"indisponible"}
     #finally:
         #suppression de l'objet temporaire
@@ -125,6 +80,72 @@ def reconnaissance_image(donnees) -> dict:
 
     return result
 
-#monimage = "friends.jpg"
-#with open(monimage, "rb") as donnees:
-#    print(reconnaissance_image(donnees))
+def deposer_fichier(donnees, key):
+    """ envoi un fichier sur bucket S3
+
+    :param donnees: format bytes
+    :param key: objet S3
+    :return: True if file was uploaded, else False
+    """
+
+    result = False
+
+    #creation client aws-s3
+    s3_client = boto3.client('s3')
+    try:
+        s3_client.upload_fileobj(donnees, BUCKET, key)
+        logging.info("S3: upload OK")
+        result = True
+    except ClientError as erreur:
+        logging.error(erreur)
+    return result
+
+def recuperer_fichier(key):
+    """recuperation d'un objet par sa key sur aws-s3
+
+    :param: AWS-S3 key-object
+    :return: contenu objet
+    :rtype: string
+    """
+
+    s3_ress = boto3.resource('s3')
+    try:
+        objet = s3_ress.Object(BUCKET, key)
+        result = objet.get()['Body'].read()
+        #result = objet.get()['Body'].read().decode('utf-8')
+    except ClientError as erreur:
+        logging.error(erreur)
+        result = "cacaboudin", 400
+    return result
+
+def supprimer_fichier(key):
+    """ supprime un objet aws-s3
+
+    :param key: objet S3
+    :return: True if file was uploaded, else False
+    """
+
+    result = False
+
+    #creation client aws-s3
+    s3_client = boto3.client('s3')
+    try:
+        s3_client.delete_object(Bucket=BUCKET, Key=key) #retour type response[]
+        #response['HTTPStatusCode'] doit être égal à 204
+        logging.info("S3: delete OK")
+        result = True
+    except ClientError as erreur:
+        logging.error(erreur)
+    return result
+
+def compter_objets():
+    """ compte le nombre d'objets presents sur le bucket
+
+    :rtype: integer
+    """
+    cpt = 0
+    s3_ress = boto3.resource('s3')
+    for _ in s3_ress.Bucket(BUCKET).objects.all():
+        #print(file.key)
+        cpt += 1
+    return cpt

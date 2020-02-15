@@ -7,16 +7,16 @@
 
 """
 
-def recup_hateoas(adresse: str, id_fichier: str) -> dict:
+def recuperer_hateoas(adresse: str, id_fichier: str) -> dict:
     """
         fonction qui renvoie un dictionnaire à partir d'éléments d'une UFI
     """
 
-    hateoas = {"method": "get"}
+    hateoas = {"methods": ["get","delete"]}
     hateoas.update({"url": adresse})
     hateoas.update({"urn": id_fichier})
     return hateoas
 
-def test_recup_hateoas():
+def test_recuperer_hateoas():
     """ utiliser PYTEST pour tester """
-    assert recup_hateoas("a", "b") == {'method': 'get', 'url': 'a', 'urn': 'b'}
+    assert recup_hateoas("a", "b") == {'method': ['get','delete'], 'url': 'a', 'urn': 'b'}

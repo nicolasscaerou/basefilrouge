@@ -10,6 +10,7 @@
 #standard import
 import json
 import csv
+from io import BytesIO
 #3-party import
 from flask import request, jsonify
 from werkzeug.utils import secure_filename
@@ -18,8 +19,9 @@ import yaml
 from PIL import Image
 #from PyPDF2 import PdfFileReader
 #local applicatoin import
-from controllers.aws_s3_operations import reconnaissance_image
-from controllers.hateoas import recup_hateoas
+from controllers.aws_s3_operations import reconnaitre_image, deposer_fichier,\
+                                          recuperer_fichier, supprimer_fichier
+from controllers.hateoas import recuperer_hateoas
 from models.modele_fichier import Fichier
 
 def fichier_post(data: str) -> str:
@@ -58,15 +60,18 @@ def fichier_post(data: str) -> str:
         img = Image.open(data)
         width, height = img.size
         dimensions = {'height':height, 'width':width}
-        exif = img.getexif()
+        exif = img._getexif()
 
-        npimg = np.array(img)
-        donnees = npimg.flatten().tolist()
+        npimg = np.array(img) #type=ndarray
+        donnees = npimg.tolist() #type=list
 
         #mettre a True si le service fonctionne avec RosettaHUB
         activation_aws_rekognition = False
         if activation_aws_rekognition:
-            reko = reconnaissance_image(contenu)
+            temp = BytesIO(contenu)#1types=BytesIO
+            deposer_fichier(temp, fichiercourant.id_fichier) #depot format bytes
+            reko = reconnaitre_image(fichiercourant.id_fichier)
+            supprimer_fichier(fichiercourant.id_fichier)
         else:
             reko = {'aws-rekognition':'desactive'}
         meta = {'dimensions':dimensions, 'exif':exif, 'reconnaissance':reko}
@@ -107,22 +112,50 @@ def fichier_post(data: str) -> str:
 #        inputPdf = PdfFileReader(contenu)
 #        docInfo = inputPdf.getDocumentInfo()
 #        donnees = json.dumps(docInfo)
+    else:
+         code_retour = 415
+         message = "Unsupported Media Type"
 
     #enregistrement donnees
     fichiercourant.donnees = donnees
-    print(fichiercourant.donnees)
     #enregistrement hateoas
-    fichiercourant.hateoas = recup_hateoas(request.url,\
+    fichiercourant.hateoas = recuperer_hateoas(request.url,\
                                                  fichiercourant.id_fichier)
-    return jsonify(fichiercourant.serialise())
 
-def fichier_get(id_fichier: str) -> str:
+    #REUPLOAD FICHIEA
+    result = fichiercourant.serialise()
+    temp = BytesIO(json.dumps(result).encode('utf-8'))
+    deposer_fichier(temp, fichiercourant.id_fichier)
+
+    return jsonify(result), 201
+
+def fichier_get(idFichier: str):
     """ fonction de récupération d'un fichier précédemment récupéré
 
-    :param id_fichier: id fichier (se trouve dans le json d'upload de la requete POST 200 initiale
+    :param id_fichier: id fichier (se trouve dans le json d'upload de la requete POST 200 initiale)
     :return: récupération du fichier au format json
     :rtype: json
- """
-    with open(id_fichier, 'r') as fichier:
-        donnees = fichier.read()
-        return donnees
+    """
+    temp = recuperer_fichier(idFichier)
+    temp = json.loads(temp.decode('utf-8'))
+    if type(temp) is tuple:
+        result = temp
+    else:    
+        result = jsonify(result), 200
+    return result
+
+def fichier_delete(idFichier: str):
+    """ fonction de récupération puis suppression d'un fichier précédemment récupéré
+
+    :param id_fichier: id fichier (se trouve dans le json d'upload de la requete POST 200 initiale)
+    :return: récupération du fichier au format json
+    :rtype: json
+    """
+    temp = recuperer_fichier(idFichier)
+    temp = json.loads(temp.decode('utf-8'))
+    if type(temp) is tuple:
+        result = temp
+    else:    
+        result = jsonify(result), 200
+    supprimer_fichier(idFichier)
+    return result
