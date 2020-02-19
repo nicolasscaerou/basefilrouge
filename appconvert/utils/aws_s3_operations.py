@@ -48,7 +48,6 @@ def reconnaitre_image(key) -> dict:
     :return: retourne les labels d'éléments et éventuels célébrités reconnues dans l'image
     """
     result = {}
-    #with open(image, "rb") as donnees: #a utiliser si nom fichier en entree et non des bytes
 
     try:
         labels = {"TauxMinDeConfiancePrediction":TAUX_MIN_CONFIANCE / 100}
@@ -71,12 +70,8 @@ def reconnaitre_image(key) -> dict:
         result.update({"Labels":labels})
         if len(celebrites) > 0:
             result.update({"Celebrites":celebrites})
-    #except ClientError as erreur:
     except ClientError:
         result = {"aws_rekognition":"indisponible"}
-    #finally:
-        #suppression de l'objet temporaire
-        #s3_client.delete_object(bucket, key)   #ne fonctionne pas pour le moment
 
     return result
 
@@ -112,10 +107,9 @@ def recuperer_fichier(key):
     try:
         objet = s3_ress.Object(BUCKET, key)
         result = objet.get()['Body'].read()
-        #result = objet.get()['Body'].read().decode('utf-8')
     except ClientError as erreur:
         logging.error(erreur)
-        result = "cacaboudin", 400
+        result = "Ressource absente", 404
     return result
 
 def supprimer_fichier(key):
@@ -136,6 +130,7 @@ def supprimer_fichier(key):
         result = True
     except ClientError as erreur:
         logging.error(erreur)
+        result = "Ressource absente", 404
     return result
 
 def compter_objets():
