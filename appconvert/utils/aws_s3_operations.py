@@ -109,7 +109,10 @@ def recuperer_fichier(key):
         result = objet.get()['Body'].read()
     except ClientError as erreur:
         logging.error(erreur)
-        result = "Ressource absente", 404
+        if erreur.response['Error']['Code'] == 'NoSuchKey':
+            result = 404
+        else:
+            result = 400
     return result
 
 def supprimer_fichier(key):
@@ -130,7 +133,10 @@ def supprimer_fichier(key):
         result = True
     except ClientError as erreur:
         logging.error(erreur)
-        result = "Ressource absente", 404
+        if erreur.response['Error']['Code'] == 'NoSuchKey':
+            result = 404
+        else:
+            result = 400
     return result
 
 def compter_objets():

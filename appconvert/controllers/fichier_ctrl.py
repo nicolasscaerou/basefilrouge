@@ -54,6 +54,7 @@ def fichier_post(data: str) -> str:
 
     donnees = {}
     meta = {}
+    code_retour = 201
     #====================
     # rajouter en plus des donnees dans un format particulier à chaque type
     #  + meta_donnees adaptées à chaque type de fichier
@@ -162,11 +163,14 @@ def fichier_get(idFichier: str):
     :rtype: json
     """
     temp = recuperer_fichier(idFichier)
-    temp = json.loads(temp.decode('utf-8'))
-    if type(temp) is tuple:
-        result = temp
+    if temp == 404:
+        result = "Ressource introuvable", temp
+    elif temp == 400:
+        result = "Mauvaise requête", temp
     else:    
-        result = jsonify(result), 200
+        temp = json.loads(temp.decode('utf-8'))
+        result = jsonify(temp), 200
+
     return result
 
 def fichier_delete(idFichier: str):
@@ -177,10 +181,13 @@ def fichier_delete(idFichier: str):
     :rtype: json
     """
     temp = recuperer_fichier(idFichier)
-    temp = json.loads(temp.decode('utf-8'))
-    if type(temp) is tuple:
-        result = temp
+    if temp == 404:
+        result = "Ressource introuvable", temp
+    elif temp == 400:
+        result = "Mauvaise requête", temp
     else:    
-        result = jsonify(result), 200
-    supprimer_fichier(idFichier)
+        temp = json.loads(temp.decode('utf-8'))
+        result = jsonify(temp), 200
+        supprimer_fichier(idFichier)
+        
     return result

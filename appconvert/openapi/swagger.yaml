@@ -76,7 +76,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fichier'
         '400':
-          description: Invalide ID
+          description: Mauvaise requête
         '404':
           description: Fichier non trouvé
     delete:
@@ -100,32 +100,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fichier'
         '400':
-          description: Invalide ID
+          description: Mauvaise requête
         '404':
           description: Fichier non trouvé
-  /hello/{name}:
-    post:
-      tags:
-        - hello
-      summary: hello world de test
-      description: hello world de test
-      operationId: controllers.hello_ctrl.hello
-      responses:
-        200:
-          description: Dit bonjour
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "Hello World!"
-      parameters:
-        - name: name
-          in: path
-          description: Nom de la personne à qui dire bonjour
-          required: true
-          schema:
-            type: string
-            example: "World"
 components:
   schemas:
     Fichier:
