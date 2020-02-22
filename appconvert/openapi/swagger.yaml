@@ -83,7 +83,7 @@ paths:
       tags:
         - fichier
       summary: retrouver un fichier précédemment uploadé et le supprimer
-      description: renvoi un fichier json d'un fichier déjà enregistré sur le serveur. Il s'agira du dernier envoi du fichier au format JSON
+      description: renvoi une dernière fois, avant suppression, un fichier JSON d'un fichier déjà déposé sur le serveur.
       operationId: controllers.fichier_ctrl.fichier_delete
       parameters:
         - name: idFichier

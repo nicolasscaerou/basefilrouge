@@ -91,5 +91,5 @@ def apropos():
 if __name__ == '__main__':
 
     #a changer lorsque le certificat ssl sera obtenu
-    #APP.run(port=10000, debug=False, ssl_context=context))
-    APP.run(port=10000, debug=True)
+    #APP.run(port=56020, debug=False, ssl_context=context))
+    APP.run(port=56020, debug=True)

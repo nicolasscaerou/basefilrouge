@@ -97,7 +97,7 @@ def fichier_post(data: str) -> str:
 
     elif extension == 'yaml':
         contenu = contenu.decode('utf-8')
-        donnees = yaml.load(contenu)
+        donnees = yaml.load(contenu, Loader=yaml.FullLoader)
 
     elif extension == 'csv':
         #permet de décoder le fichier, détecter les libellés de la ligne de titre
