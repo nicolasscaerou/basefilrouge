@@ -12,6 +12,8 @@ import json
 import csv
 from io import BytesIO, StringIO
 #3-party import
+from flask import request, jsonify
+from werkzeug.utils import secure_filename
 #import numpy as np
 #import pandas as pd
 import yaml
@@ -26,7 +28,42 @@ from utils.hateoas import recuperer_hateoas
 from utils.exif import recuperer_exiftags
 from models.modele_fichier import Fichier
 
-def convert_image(donnees):
+def fichier_post(data: str) -> str:
+    """Fonction de conversion un fichier posté, en fonction de son type
+
+    -si image: retourne meta_donnees spécifiques(dimensions, EXIF) + donnees en Array RVB
+    -si texte simple: retourne aucune meta_donnees spécifique
+    -si YAML: transforme les donnees en JSON
+    -si CSV, fonctionne pas encore
+
+    :param data: donnees reçues via requête POST
+    """
+    # pylint: disable=too-many-locals
+
+    #================""
+    # informations de base, peu importe le type de fichier
+    #====================
+    adresseip = request.remote_addr
+    contenu = request.files['data'].read() #type(contenu)=bytes
+    mimetype = data.mimetype
+    taille = request.headers.get('Content-Length')
+    nomfic = secure_filename(data.filename)
+    extension = nomfic.split(".")[-1].lower()
+
+    #creation objet Fichier
+    fichiercourant = Fichier(ip_origine=adresseip, nom_fic=nomfic, mime_type=mimetype,\
+                            taille=taille, extension=extension)
+
+    donnees = {}
+    meta = {}
+    code_retour = 201
+    #====================
+    # rajouter en plus des donnees dans un format particulier à chaque type
+    #  + meta_donnees adaptées à chaque type de fichier
+    #  + informations de type HATEOAS (voir fichier hateoas.py)
+    #====================
+    if extension in ['jpg', 'jpeg', 'gif', 'bmp', 'png', 'tiff', 'ico'] or\
+        mimetype in ['image/jpeg', 'image/gif', 'image/x-icon', 'image/png', 'image/tiff']:
         # convert string of image data to uint8
         img = Image.open(data)
         width, height = img.size
@@ -51,7 +88,7 @@ def convert_image(donnees):
         else:
             reko = {'aws-rekognition':'desactive'}
         meta = {'dimensions':dimensions, 'exif':exif, 'reconnaissance':reko}
-    return 
+
 
     elif extension in ['txt', 'md', 'rst', 'css'] or\
           mimetype in ['text/plain']:
