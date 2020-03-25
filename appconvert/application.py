@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# coding: utf-
 """
    APPLICATION WEB contenant
     * API de transformation fichier -> Json
@@ -8,8 +9,7 @@
    - codé entièrement avec VI :)
 
 """
-from __future__ import absolute_import
-import logging
+#from __future__ import absolute_import
 from datetime import datetime
 #utilisation de connexion qui agit par-dessus Flask et gère mieux l'OPENAPI3 (demande du prof SOA)
 import connexion
@@ -70,21 +70,19 @@ def formulaire(data=None):
     if request.method == 'GET':
         message = render_template('upload.html', title="upload")
     elif request.method == 'POST':
-        print("cacadoudinnnnnnnnn")
-        #message = controllers.convert_ctrl.convert_post(request)
-        message = controllers.convert_ctrl.convert_post(data)
+        message = controllers.fichier_ctrl.fichier_post(data)
 
     return message
 
 #########################
 # PAGE DE PRESENTATION
 #########################
-@APP.route('/apropos/')
-def apropos():
+@APP.route('/rapport/')
+def rapport():
     """
     route permettant d'avoir infos sur moi
     """
-    return render_template('apropos.html', title="apropos", heure_actuelle=datetime.now())
+    return render_template('rapport.html', title="rapport", heure_actuelle=datetime.now())
 
 
 
@@ -92,4 +90,4 @@ if __name__ == '__main__':
 
     #a changer lorsque le certificat ssl sera obtenu
     #APP.run(port=56020, debug=False, ssl_context=context))
-    APP.run(port=56020, debug=True)
+    APP.run(port=56029, debug=True)

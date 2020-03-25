@@ -1,0 +1,11 @@
+<ecole>
+  <nom>CentraleSupélec</nom>
+  <scolarite>
+    <name>MS SIO</name>
+    <responsable>Francois Laissus</responsable>
+  </scolarite>
+  <scolarite>
+    <name>MS MSI</name>
+    <responsable>JL Perraudin</responsable>
+  </scolarite>
+</ecole>

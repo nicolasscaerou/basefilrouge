@@ -30,6 +30,13 @@ NOMTAG[40961] = 'ColorSpace'
 NOMTAG[42035] = 'HardwareBrand'
 NOMTAG[42036] = 'LensModel'
 
+def get_labeled_exif(exif):
+    labeled = {}
+    for (key, val) in exif.items():
+        labeled[ExifTags.TAGS.get(key)] = val
+
+    return labeled
+
 
 def convert_exif_to_dict(exif):
     """
@@ -59,6 +66,8 @@ def recuperer_exiftags(image):
     """
 
     image.verify()
+    exif = image._getexif()
+    labeled = get_labeled_exif(exif)
 
     if image.format in ['JPEG', 'JPG', 'PNG', 'TIFF']:
         exif = convert_exif_to_dict(image._getexif())

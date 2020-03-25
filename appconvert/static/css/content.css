@@ -1,7 +1,4 @@
 .content {
-  background-image: url('img/campus-saclay.jpg');
+  background-image: url('../img/campus-saclay.jpg');
   background-size:cover;
-  }
-img {
-  opacity:.5;
   }
