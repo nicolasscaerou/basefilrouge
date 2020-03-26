@@ -8,25 +8,28 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 externalDocs:
-  description: Lien vers l'avancée du projet
-  url: /projet
+  description: Lien vers le rapport du projet
+  url: /rapport
 servers:
-  - url: http://localhost:10000/api
+  - url: http://99.81.225.203:56056/api
 tags:
   - name: fichier
     description: Conversion de fichiers en Json
+    externalDocs:
+      description: Rapport de ce projet
+      url: 'http://99.81.225.203:56056/rapport'
   - name: hello
     description: fonction de test
     externalDocs:
       description: Find out more
       url: 'http://swagger.io'
 paths:
-  /fichier/:
+  /fichier:
     post:
       tags:
         - fichier
-      summary: Depose un fichier et le traduit en Json
-      description: Envoi limité à 10Mo par fichier. Le fichier sera traduit en JSON, en fonction de son type, puis stocké et retourné à l'envoyeur. Il contiendra des données de base sur le type de fichier, mais également des meta-donnees propres au type, et les donnees brutes du fichier. Si c'est un YAML, les donnees brutes seront transformées en pur JSON. Si c'est une Image, les donnees seront retournees en matrice RVB...
+      summary: Depose un fichier, le stocke sur S3 et le renvoie traduit en Json
+      description: Envoi limité à 10Mo par fichier. Le fichier sera traduit en JSON, en fonction de son type, puis stocké et retourné à l'envoyeur. Il contiendra des données de base sur le type de fichier, mais également des meta-donnees propres au type, et les donnees brutes du fichier. Si c'est un YAML, les donnees brutes seront transformées en pur JSON. Si c'est une Image, les metadonnes comprendront, outre la taille et d'autres donnees communes, des éléments de reconnaissance de labels et de célébrités aux travers des services AWS...
       operationId: controllers.fichier_ctrl.fichier_post
       requestBody:
         content:
