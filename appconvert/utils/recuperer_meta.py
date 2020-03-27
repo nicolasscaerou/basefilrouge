@@ -37,6 +37,13 @@ def meta_csv(donnees):
 
     return meta
 
+def test_meta_csv():
+    """ fonction de test de meta_csv() """
+
+    resultat = recuperer_meta.meta_csv(b"test;nom\n1;fonctionnel\n2;unitaire")
+    attendu = {'delimiter': ';', 'traduction_json': [{'test': '1', 'nom': 'fonctionnel'},\
+               {'test': '2', 'nom': 'unitaire'}]}
+    assert resultat == attendu
 
 def meta_images(databytes, donnees, extension):
     """ fonction de recuperation de metadonnees sur les images """

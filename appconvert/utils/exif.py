@@ -30,7 +30,8 @@ NOMTAG[40961] = 'ColorSpace'
 NOMTAG[42035] = 'HardwareBrand'
 NOMTAG[42036] = 'LensModel'
 
-def get_labeled_exif(exif):
+def recuperer_labels_exif(exif):
+    """ recuperer automatiquement les bons labels d'exif """
     labeled = {}
     for (key, val) in exif.items():
         labeled[ExifTags.TAGS.get(key)] = val
@@ -62,12 +63,12 @@ def convert_exif_to_dict(exif):
 
 def recuperer_exiftags(image):
     """
-        fonction qui renvoie un dictionnaire à partir d'éléments d'une UFI
+        fonction qui renvoie un dictionnaire à partir d'éléments d'une URI
     """
 
     image.verify()
     exif = image._getexif()
-    labeled = get_labeled_exif(exif)
+    labeled = recuperer_labels_exif(exif)
 
     if image.format in ['JPEG', 'JPG', 'PNG', 'TIFF']:
         exif = convert_exif_to_dict(image._getexif())
@@ -75,3 +76,11 @@ def recuperer_exiftags(image):
         exif = None
 
     return exif
+
+def test_recuperer_labels_exif():
+    """ fonction de tests """
+
+    resultat = recuperer_labels_exif({256:'a',257:'b'})
+    attendu = {'ImageWidth': 'a', 'ImageLength': 'b'}
+    assert resultat == attendu
+

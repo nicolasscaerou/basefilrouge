@@ -9,7 +9,7 @@
 
 def recuperer_hateoas(adresse: str, id_fichier: str) -> dict:
     """
-        fonction qui renvoie un dictionnaire à partir d'éléments d'une UFI
+        fonction qui renvoie un dictionnaire à partir d'éléments d'une URI
     """
 
     hateoas = {"methods": ["get","delete"]}
@@ -19,4 +19,7 @@ def recuperer_hateoas(adresse: str, id_fichier: str) -> dict:
 
 def test_recuperer_hateoas():
     """ utiliser PYTEST pour tester """
-    assert recup_hateoas("a", "b") == {'method': ['get','delete'], 'url': 'a', 'urn': 'b'}
+
+    resultat = recuperer_hateoas('a', 'b')
+    devraitetre = {'methods': ['get','delete'], 'url': 'a', 'urn': 'b'}
+    assert resultat == devraitetre

@@ -1,0 +1,11 @@
+{
+    "dev": {
+        "app_function": "application.APP",
+        "aws_region": "eu-west-1",
+        "profile_name": "default",
+        "project_name": "appconvert",
+        "runtime": "python3.8",
+        "s3_bucket": "zappa-1mla9ya8o",
+        "slim_handler": true
+    }
+}

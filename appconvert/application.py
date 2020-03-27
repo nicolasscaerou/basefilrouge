@@ -24,7 +24,6 @@ UPLOAD_FOLDER = '/path/to/the/uploads'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 MAX_CONTENT_LENGTH = 10 * 1024 * 1024
 
-#APP = connexion.FlaskApp(__name__, port=10000, specification_dir='openapi/')
 APP = connexion.FlaskApp(__name__, specification_dir='openapi/')
 APP.add_api('swagger.yaml', arguments={'title': 'SIO API'})
 #attention, pour l'instant incompatible avec connexion(zalando)
